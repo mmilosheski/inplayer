@@ -277,88 +277,89 @@ add_shortcode("inplayer_brightcove", "inplayer_register_shortcode");
 
 
 //CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_register_shortcode($atts) {
+// function inplayer_register_shortcode($atts) {
 
-    include_once '/assets/ovps/brightcove.php';
+//     include_once '/assets/ovps/brightcove.php';
 
-}
-add_shortcode("inplayer_youtube", "inplayer_youtube_register_shortcode");
-
-
-//CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_youtube_register_shortcode($atts) {
-
-    include_once '/assets/ovps/youtube.php';
-
-}
-add_shortcode("inplayer_vimeo", "inplayer_vimeo_register_shortcode");
+// }
+// add_shortcode("inplayer_youtube", "inplayer_youtube_register_shortcode");
 
 
 //CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_vimeo_register_shortcode($atts) {
+// function inplayer_youtube_register_shortcode($atts) {
 
-    include_once '/assets/ovps/vimeo.php';
+//     include_once '/assets/ovps/youtube.php';
 
-}
-add_shortcode("inplayer_jwplayer", "inplayer_jwplayer_register_shortcode");
-
-
-//CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_jwplayer_register_shortcode($atts) {
-
-    include_once '/assets/ovps/jw-player.php';
-
-}
-
-add_shortcode("inplayer_wistia", "inplayer_wistia_register_shortcode");
+// }
+// add_shortcode("inplayer_vimeo", "inplayer_vimeo_register_shortcode");
 
 
 //CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_wistia_register_shortcode($atts) {
+// function inplayer_vimeo_register_shortcode($atts) {
 
-    include_once '/assets/ovps/wistia.php';
+//     include_once '/assets/ovps/vimeo.php';
 
-}
-
-add_shortcode("inplayer_theplatform", "inplayer_theplatform_register_shortcode");
-
-
-//CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_theplatform_register_shortcode($atts) {
-
-    include_once '/assets/ovps/theplatform.php';
-
-}
-
-add_shortcode("inplayer_kaltura", "inplayer_kaltura_register_shortcode");
+// }
+// add_shortcode("inplayer_jwplayer", "inplayer_jwplayer_register_shortcode");
 
 
 //CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_kaltura_register_shortcode($atts) {
+// function inplayer_jwplayer_register_shortcode($atts) {
 
-    include_once '/assets/ovps/kaltura.php';
+//     include_once '/assets/ovps/jw-player.php';
 
-}
-add_shortcode("inplayer_haivision", "inplayer_haivision_register_shortcode");
+// }
 
-
-//CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_haivision_register_shortcode($atts) {
-
-    include_once '/assets/ovps/haivision.php';
-
-}
-
-add_shortcode("inplayer_voyo", "inplayer_voyo_register_shortcode");
+// add_shortcode("inplayer_wistia", "inplayer_wistia_register_shortcode");
 
 
 //CREATE SHORTCODE FOR FRONT END BOOKING
-function inplayer_voyo_register_shortcode($atts) {
+// function inplayer_wistia_register_shortcode($atts) {
 
-    include_once '/assets/ovps/voyo.php';
+//     include_once '/assets/ovps/wistia.php';
 
-}
-add_action('front_end_scripts_styles','front_end_scripts_styles');
+// }
+
+// add_shortcode("inplayer_theplatform", "inplayer_theplatform_register_shortcode");
+
+
+//CREATE SHORTCODE FOR FRONT END BOOKING
+// function inplayer_theplatform_register_shortcode($atts) {
+
+//     include_once '/assets/ovps/theplatform.php';
+
+// }
+
+// add_shortcode("inplayer_kaltura", "inplayer_kaltura_register_shortcode");
+
+
+//CREATE SHORTCODE FOR FRONT END BOOKING
+// function inplayer_kaltura_register_shortcode($atts) {
+
+//     include_once '/assets/ovps/kaltura.php';
+
+// }
+// add_shortcode("inplayer_haivision", "inplayer_haivision_register_shortcode");
+
+
+//CREATE SHORTCODE FOR FRONT END BOOKING
+// function inplayer_haivision_register_shortcode($atts) {
+
+//     include_once '/assets/ovps/haivision.php';
+
+// }
+
+// add_shortcode("inplayer_voyo", "inplayer_voyo_register_shortcode");
+
+
+//CREATE SHORTCODE FOR FRONT END BOOKING
+// function inplayer_voyo_register_shortcode($atts) {
+
+//     include_once '/assets/ovps/voyo.php';
+
+// }
+// add_action('front_end_scripts_styles','front_end_scripts_styles');
+
 function front_end_scripts_styles() {
     wp_register_style('inplayercss','http://plugin.inplayer.com/html5/v3/latest/style/style.css');
     wp_register_script('inplayerjs','http://plugin.inplayer.com/html5/v3/latest/scripts/inplayer.js');
@@ -394,12 +395,16 @@ function payment_script(/*$packageused, $amount, $packageid, */$content = null) 
     $content = str_replace('</p>', '', $content);
     $pid = 5070;
     $payment_scipt = '<link rel="stylesheet" type="text/css" href="http://invideous.s3.amazonaws.com/html5/3.1.3/style/style.css" />';
-    $payment_scipt .= '<script type="text/javascript" src="http://invideous.s3.amazonaws.com/html5/3.1.3/jwplayer/jwplayer.js"></script>';
-    $payment_scipt .= '<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>';
+    $payment_scipt .= '<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>';
+    $payment_scipt .= '<script type="text/javascript" src="http://invideous.s3.amazonaws.com/html5/jwplayer/v7.0.0/jwplayer.js"></script>';
+    // $payment_scipt .= '<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>';
     $payment_scipt .= '<script type="text/javascript" src="http://invideous.s3.amazonaws.com/html5/3.1.3/scripts/inplayer.js"></script>';
-    $payment_scipt .= '<div id="myElement" class="invideous">'.$content.'</div>';
-    $payment_scipt .= '<script type="text/javascript">inplayer.ovps.wordpress.createInstance({publisher_id: 5070,ovp_video_id: \'5070wptest1111\'});</script>';
-
+    // $payment_scipt = '<link rel="stylesheet" type="text/css" href="//plugin.invideous.s3.amazonaws.com/html5/v3/2.1/style/style.css" />';
+    // $payment_scipt .= '<script type="text/javascript" src="//content.jwplatform.com/players/SgUrF2fq-Y9qhdo6v.js"></script>';
+    // $payment_scipt .= '<script type="text/javascript" src="//plugin.invideous.s3.amazonaws.com/html5/v3/2.1/scripts/inplayer.js"></script>';
+    $payment_scipt .= '<div id="myElement" class="invideous" style="width:640px;height:390px;">'.$content.'</div>';
+    // $payment_scipt .= '<script type="text/javascript">inplayer.ovps.wordpress.createInstance({publisher_id: 5070,ovp_video_id: \'5070wptest1111\',width: "640",height: "390"});</script>';
+    $payment_scipt .= '<script type="text/javascript"> inplayer.ovps.wordpress.createInstance({ publisher_id: 5070, ovp_video_id: \'5070wptest1111\', width: "550px",height: "320px" }); </script>';
     return $payment_scipt;
 }
 
@@ -415,12 +420,16 @@ function inplayer_protectedcontent($atts, $content = null) {
                 'is_recurrent' => ''
             ), $atts, 'inplayer_protectedcontent' 
         ));
-    //debug_to_console($atts);
+    debug_to_console($atts);
 
     if (current_user_can('create_users'))
-        return '<div id="myElement" class="invideous">' . $content . '</div>';
+        return '<div id="myElement" class="invideous" style="width:640px;height:390px;">' . $content . '</div>';
     return payment_script($content = $content);
 }
+
+add_shortcode('inplayer_protectedcontent', 'inplayer_protectedcontent');
+
+
 function debug_to_console( $data ) {
 
     if ( is_array( $data ) )
@@ -430,7 +439,6 @@ function debug_to_console( $data ) {
 
     echo $output;
 }
-add_shortcode('inplayer_protectedcontent', 'inplayer_protectedcontent');
 
 // init process for registering our button
  add_action('init', 'wpse72394_shortcode_button_init');
