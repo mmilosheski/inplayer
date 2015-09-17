@@ -118,7 +118,7 @@ function my_plugin_menu() {
 }
 
 function myinplayer() {
-    require_once 'inplayer-admin1.php';
+    require_once 'inplayer-admin.php';
     inplayer_register_scripts_styles();
 }
 
