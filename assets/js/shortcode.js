@@ -18,10 +18,10 @@ jQuery(document).ready(function($) {
                     if( selected ){
                         //If text is selected when button is clicked
                         //Wrap shortcode around it.
-                        content =  '[inplayer_protectedcontent packagename=&quot;Package1&quot; period=&quot;1&quot; tarrif_option_id=&quot;week&quot; price=&quot;10&quot; is_recurrent=&quot;0&quot;]'+selected+'[/inplayer_protectedcontent]';
+                        content =  '[inplayer_protectedcontent ovp_video_id=&quot;5070wptest1111&quot; packagename=&quot;Package1&quot; period=&quot;1&quot; tarrif_option_id=&quot;week&quot; price=&quot;10&quot; is_recurrent=&quot;0&quot;]'+selected+'[/inplayer_protectedcontent]';
                         //content =  '[inplayer_protectedcontent /*"'+a.data.publisherid+'" "'+a.data.postid+'" "'+a.data.sourceurl+'" "'+a.data.ovp+'" "'+a.data.ovppostid+'"*/]'+selected+'[/inplayer_protectedcontent]';
                     }else{
-                        content =  '[inplayer_protectedcontent packagename=&quot;Package1&quot; period=&quot;1&quot; tarrif_option_id=&quot;week&quot; price=&quot;10&quot; is_recurrent=&quot;0&quot;][/inplayer_protectedcontent]';
+                        content =  '[inplayer_protectedcontent ovp_video_id=&quot;5070wptest1111&quot; packagename=&quot;Package1&quot; period=&quot;1&quot; tarrif_option_id=&quot;week&quot; price=&quot;10&quot; is_recurrent=&quot;0&quot;][/inplayer_protectedcontent]';
                     }
 
                     tinymce.execCommand('mceInsertContent', false, content);
@@ -30,7 +30,7 @@ jQuery(document).ready(function($) {
                /**
                * Adds HTML tag to selected content
                */
-               ed.addButton( 'inplayer_protectedcontent1', {
+               ed.addButton( 'inplayer_protectedcontent', {
                     text: 'Add Package2',
                     title : 'Add Package2',
                     icon : 'icon inpalyer-icon',
@@ -42,12 +42,12 @@ jQuery(document).ready(function($) {
                     if( selected ){
                         //If text is selected when button is clicked
                         //Wrap shortcode around it.
-                        content =  '[inplayer_protectedcontent packagename=&quot;Package2&quot; period=&quot;2&quot; tarrif_option_id=&quot;week&quot; price=&quot;15&quot; is_recurrent=&quot;0&quot;]' +
+                        content =  '[inplayer_protectedcontent ovp_video_id=&quot;5070wptest1112&quot; packagename=&quot;Package2&quot; period=&quot;2&quot; tarrif_option_id=&quot;week&quot; price=&quot;15&quot; is_recurrent=&quot;0&quot;]' +
                                 selected +
                                 '[/inplayer_protectedcontent]';
                         //content =  '[inplayer_protectedcontent /*"'+a.data.publisherid+'" "'+a.data.postid+'" "'+a.data.sourceurl+'" "'+a.data.ovp+'" "'+a.data.ovppostid+'"*/]'+selected+'[/inplayer_protectedcontent]';
                     }else{
-                        content =  '[inplayer_protectedcontent packagename=&quot;Package2&quot; period=&quot;2&quot; tarrif_option_id=&quot;week&quot; price=&quot;15&quot; is_recurrent=&quot;0&quot;][/inplayer_protectedcontent1]';
+                        content =  '[inplayer_protectedcontent ovp_video_id=&quot;5070wptest1112&quot; packagename=&quot;Package2&quot; period=&quot;2&quot; tarrif_option_id=&quot;week&quot; price=&quot;15&quot; is_recurrent=&quot;0&quot;][/inplayer_protectedcontent]';
                     }
 
                     tinymce.execCommand('mceInsertContent', false, content);
@@ -63,6 +63,11 @@ jQuery(document).ready(function($) {
                         type: 'textbox',
                         name: 'packagename',
                         label: 'Package Name',
+                        value: ''
+                    }, {
+                        type: 'textbox',
+                        name: 'ovp_video_id',
+                        label: 'OVP ID',
                         value: ''
                     }, {
                         type: 'textbox',
@@ -117,7 +122,9 @@ jQuery(document).ready(function($) {
                             //Wrap shortcode around it.
                                     
                             ed.insertContent(
-                                '[inplayer_protectedcontent packagename=&quot;' +
+                                '[inplayer_protectedcontent ovp_video_id=&quot;' + 
+                                e.data.ovp_video_id + 
+                                '&quot; packagename=&quot;' +
                                 e.data.packagename +
                                 '&quot; period=&quot;' +
                                 e.data.period +
@@ -132,7 +139,9 @@ jQuery(document).ready(function($) {
                                 '[/inplayer_protectedcontent]'
                             );
                             } else{
-                                content =  '[inplayer_protectedcontent packagename=&quot;' +
+                                content =  '[inplayer_protectedcontent ovp_video_id=&quot;' + 
+                                e.data.ovp_video_id + 
+                                '&quot; packagename=&quot;' +
                                 e.data.packagename +
                                 '&quot; tarrif_option_id=&quot;' +
                                 e.data.tarrif_option_id +

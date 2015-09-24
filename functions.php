@@ -1,233 +1,334 @@
-<?php
-/**
- * Plugin Name: InPlayer WP Plugin
- * Plugin URI: http://inplayer.com/
- * Description: Sell your videos on your Wordpress site. <a href="http://panel.inplayer.com/">Sign up for publisher account</a> and create a paywall. Then just embed the paywall ID with your WordPress plugin and include the shortcode* eg. [inplayer paywallid="someid"] to your post/page. 
- * Version: 1.0.0
- * Author: InPlayer 
- * Author URI: http://inplayer.com/
- * Text Domain: WordPress Video Monetization Plugin
- * Domain Path: http://inplayer.com/handbook-paywall/?f=wordpress-monetisation
- * Network: 
- * License: InPlayer Ltd
- */
+    <?php
+    /**
+     * Plugin Name: InPlayer WP Plugin
+     * Plugin URI: http://inplayer.com/
+     * Description: Sell your videos on your Wordpress site. <a href="http://panel.inplayer.com/">Sign up for publisher account</a> and create a paywall. Then just embed the paywall ID with your WordPress plugin and include the shortcode* eg. [inplayer paywallid="someid"] to your post/page. 
+     * Version: 1.0.0
+     * Author: InPlayer 
+     * Author URI: http://inplayer.com/
+     * Text Domain: WordPress Video Monetization Plugin
+     * Domain Path: http://inplayer.com/handbook-paywall/?f=wordpress-monetisation
+     * Network: 
+     * License: InPlayer Ltd
+     */
 
-if (!defined('ABSPATH'))
-    exit;
-$plugins_url = plugins_url();
-register_activation_hook(__FILE__, 'inplayer_plugin_install');
-register_uninstall_hook(__FILE__, 'inplayer_plugin_uninstall');
+    if (!defined('ABSPATH'))
+        exit;
 
-global $inp_db_version;
-$inp_db_version = "1.0";
+    register_activation_hook(__FILE__, 'inplayer_plugin_install');
+    register_uninstall_hook(__FILE__, 'inplayer_plugin_uninstall');
 
-function inplayer_plugin_install()
-{
-    global $wpdb;
-    global $inp_db_version;
-    require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
-    
-    // create account information table
-    $db_table_name = $wpdb->prefix . "inp_acc_info_table";
-    if ($wpdb->get_var("SHOW TABLES LIKE '$db_table_name'") != $db_table_name) {
-        if (!empty($wpdb->charset))
-            $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-        if (!empty($wpdb->collate))
-            $charset_collate .= " COLLATE $wpdb->collate";
+    global $inp_db_version, $wpdb, $is_paid_view, $ovp_video_id, $content;
+    $inp_db_version = "1.0";
 
-        $sql = "CREATE TABLE $db_table_name (
-		  `id` bigint(15) NOT NULL AUTO_INCREMENT,
-          `publisherid` bigint(15) NOT NULL,
-		  `token` varchar(250) NOT NULL,
-		  `publickey` varchar(250) NOT NULL,
-		  `privatekey` varchar(250) NOT NULL,
-		  `fullname` varchar(250) NOT NULL,
-		  `email` varchar(250) NOT NULL,
-		  `screenname` varchar(250) NOT NULL,
-		  PRIMARY KEY (`id`)
-		  	) $charset_collate;";
-        dbDelta($sql);
+    function inplayer_plugin_install()
+    {
+        global $wpdb;
+        global $inp_db_version;
+        require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
+        
+        // create account information table
+        $db_table_name = $wpdb->prefix . "inp_acc_info_table";
+        if ($wpdb->get_var("SHOW TABLES LIKE '$db_table_name'") != $db_table_name) {
+            if (!empty($wpdb->charset))
+                $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+            if (!empty($wpdb->collate))
+                $charset_collate .= " COLLATE $wpdb->collate";
+
+            $sql = "CREATE TABLE $db_table_name (
+    		  `id` bigint(15) NOT NULL AUTO_INCREMENT,
+              `publisherid` bigint(15) NOT NULL,
+    		  `token` varchar(250) NOT NULL,
+    		  `publickey` varchar(250) NOT NULL,
+    		  `privatekey` varchar(250) NOT NULL,
+    		  `fullname` varchar(250) NOT NULL,
+    		  `email` varchar(250) NOT NULL,
+    		  `screenname` varchar(250) NOT NULL,
+    		  PRIMARY KEY (`id`)
+    		  	) $charset_collate;";
+            dbDelta($sql);
+        }
+
+        $wpdb->insert($db_table_name, array('id' => 1, 'publisherid' => "0", 'token' => "", 'publickey' => "", 'privatekey' => "", 'fullname' => "", 'email' => "", 'screenname' => ""));
+
+        // create account information table
+        $db_table_name = $wpdb->prefix . "inp_acc_userinfo";
+        if ($wpdb->get_var("SHOW TABLES LIKE '$db_table_name'") != $db_table_name) {
+            if (!empty($wpdb->charset))
+                $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+            if (!empty($wpdb->collate))
+                $charset_collate .= " COLLATE $wpdb->collate";
+
+            $sql = "CREATE TABLE $db_table_name (
+              `id` bigint(15) NOT NULL AUTO_INCREMENT,
+              `email` varchar(250) NOT NULL,
+              `password` varchar(250) NOT NULL,
+              PRIMARY KEY (`id`)
+                ) $charset_collate;";
+            dbDelta($sql);
+        }
+
+        $wpdb->insert($db_table_name, array('id' => 1, 'email' => "", 'password' => ""));
+        
+        add_option("inp_db_version", $inp_db_version);
+
+        global $isInstalled;
+        $isInstalled = true;
+        
+    }
+    // End install()
+
+    function inplayer_plugin_uninstall()
+    {
+        global $wpdb;
+        global $inp_db_version;
+        $table_name = $wpdb->prefix . "inp_acc_info_table";
+        $wpdb->query("DROP TABLE IF EXISTS $table_name");
+        $table_name = $wpdb->prefix . "inp_acc_pw_setting_table";
+        $wpdb->query("DROP TABLE IF EXISTS $table_name");
+        $table_name = $wpdb->prefix . "inp_acc_ovp_table";
+        $wpdb->query("DROP TABLE IF EXISTS $table_name");
+        setcookie('pll_updateW', '0');
+        unset($_COOKIE['pll_updateW']);
+        unset($_COOKIE['pll_updateW']);
+        setcookie('pll_updateW', null, -1, '/');
+        setcookie('pll_updateW', null, -1, '/');
+
+    }
+    // End uninstall()
+    add_action('admin_print_scripts', 'add_script');
+
+    /**
+     * Add script to admin page
+     */
+    function add_script() {
+        // Build in tag auto complete script
+        wp_enqueue_script( 'suggest' );
+        wp_enqueue_style('shortcode', plugins_url('assets/css/shortcode.css', __FILE__));
     }
 
-    $wpdb->insert($db_table_name, array('id' => 1, 'publisherid' => "0", 'token' => "", 'publickey' => "", 'privatekey' => "", 'fullname' => "", 'email' => "", 'screenname' => ""));
+    add_action('admin_menu', 'my_plugin_menu');
 
-    // create account information table
-    $db_table_name = $wpdb->prefix . "inp_acc_userinfo";
-    if ($wpdb->get_var("SHOW TABLES LIKE '$db_table_name'") != $db_table_name) {
-        if (!empty($wpdb->charset))
-            $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-        if (!empty($wpdb->collate))
-            $charset_collate .= " COLLATE $wpdb->collate";
+    function my_plugin_menu() {
 
-        $sql = "CREATE TABLE $db_table_name (
-          `id` bigint(15) NOT NULL AUTO_INCREMENT,
-          `email` varchar(250) NOT NULL,
-          `password` varchar(250) NOT NULL,
-          PRIMARY KEY (`id`)
-            ) $charset_collate;";
-        dbDelta($sql);
+        $cformsSettings = get_option('cforms_settings');
+        $p = basename(dirname(__FILE__));
+        add_menu_page( 'Inplayer', 'Inplayer', 'manage_options', 'inplayer-login', 'myinplayer', plugins_url('assets/img/icon.png', __FILE__ ));
+        add_submenu_page('inplayer', 'API Settings', 'API Settings', 'manage_options', 'manage-general-options', 'settings');
     }
 
-    $wpdb->insert($db_table_name, array('id' => 1, 'email' => "", 'password' => ""));
-    
-    add_option("inp_db_version", $inp_db_version);
+    function myinplayer() {
+        require_once 'inplayer-admin1.php';
+        inplayer_register_scripts_styles();
+    }
 
-    global $isInstalled;
-    $isInstalled = true;
-    
-}
-// End install()
+    function settings() {
+        require_once 'inplayer-options.php';
+        inplayer_register_scripts_styles();
+    }
 
-function inplayer_plugin_uninstall()
-{
-    global $wpdb;
-    global $inp_db_version;
-    $table_name = $wpdb->prefix . "inp_acc_info_table";
-    $wpdb->query("DROP TABLE IF EXISTS $table_name");
-    $table_name = $wpdb->prefix . "inp_acc_pw_setting_table";
-    $wpdb->query("DROP TABLE IF EXISTS $table_name");
-    $table_name = $wpdb->prefix . "inp_acc_ovp_table";
-    $wpdb->query("DROP TABLE IF EXISTS $table_name");
-    setcookie('pll_updateW', '0');
-    unset($_COOKIE['pll_updateW']);
-    unset($_COOKIE['pll_updateW']);
-    setcookie('pll_updateW', null, -1, '/');
-    setcookie('pll_updateW', null, -1, '/');
+    function inplayer_register_scripts_styles() {
+    	// wp_register_script( 'bootstrap-min', plugins_url( 'assets/js/bootstrap.min.js', __FILE__ ) );
+      	// wp_register_script( 'admin-js', plugins_url( 'assets/js/admin-js.js', __FILE__ ) );
+        
+        // wp_enqueue_script( 'bootstrap-min' );
+        // wp_enqueue_script( 'admin-js' );
+        
+        // wp_register_style( 'bootstrap-min', plugins_url('assets/css/bootstrap.min.css', __FILE__) );
+        wp_register_style( 'admin-style', plugins_url('assets/css/admin-style.css', __FILE__) );
+        
+        // wp_enqueue_style( 'bootstrap-min' );
+        wp_enqueue_style( 'admin-style' );
+    }
 
-}
-// End uninstall()
-add_action('admin_print_scripts', 'add_script');
+    add_action('wp_enqueue_scripts','front_end_scripts');
 
-/**
- * Add script to admin page
- */
-function add_script() {
-    // Build in tag auto complete script
-    wp_enqueue_script( 'suggest' );
-    wp_enqueue_style('shortcode', plugins_url('assets/css/shortcode.css', __FILE__));
-}
+    function front_end_scripts() {
+        wp_register_script( 'front-end', plugins_url( 'assets/js/front-end.js', __FILE__ ) );
+        wp_enqueue_script( 'front-end' );
+        // wp_localize_script( 'front-end', 'ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'is_paid_view' => true ) );
+        // embed the javascript file that makes the AJAX request
+        // wp_enqueue_script( 'front-end', plugin_dir_url( __FILE__ ) . 'assets/js/front-end.js', array( 'jquery' ) );
 
-add_action('admin_menu', 'my_plugin_menu');
+        // declare the URL to the file that handles the AJAX request (wp-admin/admin-ajax.php)
+        // wp_localize_script( 'front-end', 'inplayerAjax', array( 'ajaxurl' => admin_url('admin-ajax.php'), 'is_paid_view' => "" ) );
+    }
 
-function my_plugin_menu() {
+    // if both logged in and not logged in users can send this AJAX request,
+    // add both of these actions, otherwise add only the appropriate one
+    add_action( 'wp_ajax_nopriv_myajax-submit', 'myajax_submit' );
+    add_action( 'wp_ajax_myajax-submit', 'myajax_submit' );
 
-    $cformsSettings = get_option('cforms_settings');
-    $p = basename(dirname(__FILE__));
-    add_menu_page( 'Inplayer', 'Inplayer', 'manage_options', 'inplayer-login', 'myinplayer', plugins_url('inplayer/assets/img/icon.png'));
-    add_submenu_page('inplayer', 'API Settings', 'API Settings', 'manage_options', 'manage-general-options', 'settings');
-}
+    function myajax_submit() {
+        global $ovp_video_id, $is_paid_view;
 
-function myinplayer() {
-    require_once 'inplayer-admin.php';
-    inplayer_register_scripts_styles();
-}
+        ob_start();
 
-function settings() {
-    require_once 'inplayer-options.php';
-    inplayer_register_scripts_styles();
-}
+        // get the submitted parameters
+        $is_paid_view = $_POST['paid_or_not'];
 
-function inplayer_register_scripts_styles() {
-	  wp_register_script( 'bootstrap-min', plugins_url( 'assets/js/bootstrap.min.js', __FILE__ ) );
-  	wp_register_script( 'admin-js', plugins_url( 'assets/js/admin-js.js', __FILE__ ) );
-  	
-    wp_enqueue_script( 'bootstrap-min' );
-    wp_enqueue_script( 'admin-js' );
+        //var_dump($is_paid_view);
 
-    
-    wp_register_style( 'bootstrap-min', plugins_url('assets/css/bootstrap.min.css', __FILE__) );
-    wp_register_style( 'admin-style', plugins_url('assets/css/admin-style.css', __FILE__) );
+        // if ( $is_paid_view == true ) {
+        //     $response = payment_script($ovp_video_id,$content = $content);
+        //     $response .= 'THIS IS PAID';
+        // }
+        // else {
+        //     $response = payment_script($ovp_video_id,$content);
+        //     $response = strip_tags($response, '<br/>');
+        //     $response = str_replace('<p>', '', $response);
+        //     $response = str_replace('</p>', '', $response);
+        //     $response .= 'THIS IS NOT PAID';
+        // }
+        $response = payment_script($ovp_video_id,$content);
+        // generate the response
+        // $response = payment_scipt($ovp_video_id,$content);
 
-    
-    wp_enqueue_style( 'bootstrap-min' );
-    wp_enqueue_style( 'admin-style' );
-}
+        // response output
+        header( "Content-Type: application/json" );
 
-function my_plugin_options() {
+        //echo '<script>console.log("---->", "' . var_export($is_paid_view, true) . '");</script>';
+        // echo $is_paid_view; 
 
-    echo "Silence is golden...";
+        echo $response;
+        
+        // ob_flush();
+        // IMPORTANT: don't forget to "exit"
+        exit;
+    }
 
-}
+    function my_plugin_options() {
 
-add_action('fire_payment_script','payment_script');
+        echo "Silence is golden...";
 
-function payment_script(/*$packageused, $amount, $packageid, */$content = null) {
-    require(ABSPATH . 'wp-load.php');
-    global $wpdb;
-    $acc_info_table = $wpdb->prefix . "inp_acc_info_table";
-    $acc_info_row = $wpdb->get_results("SELECT * FROM `$acc_info_table` WHERE 1", ARRAY_A);
-    $content = strip_tags($content, '<br/>');
-    $content = str_replace('<p>', '', $content);
-    $content = str_replace('</p>', '', $content);
-    $pid = 5070;
-    $payment_scipt = '<link rel="stylesheet" type="text/css" href="http://invideous.s3.amazonaws.com/html5/3.1.3/style/style.css" />';
-    $payment_scipt .= '<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>';
-    $payment_scipt .= '<script type="text/javascript" src="http://invideous.s3.amazonaws.com/html5/jwplayer/v7.0.0/jwplayer.js"></script>';
-    $payment_scipt .= '<script type="text/javascript" src="http://invideous.s3.amazonaws.com/html5/3.1.3/scripts/inplayer.js"></script>';
-    $payment_scipt .= '<div id="myElement" class="invideous" style="width:640px;height:390px;">'.$content.'</div>';
-    $payment_scipt .= '<script type="text/javascript"> inplayer.ovps.wordpress.createInstance({ publisher_id: 5070, ovp_video_id: \'5070wptest1111\', width: "550px",height: "320px" }); </script>';
-    return $payment_scipt;
-}
+    }
 
-// add custom fields code
-function inplayer_protectedcontent($atts, $content = null) {
+    add_action('fire_payment_script','payment_script');
+    // add_action('fire_payment_script','payment_script');
 
-    extract(shortcode_atts(
-        array(
-                'packagename' => '',
-                'period' => '',
-                'tarrif_option_id' => '',
-                'price' => '',
-                'is_recurrent' => ''
-            ), $atts, 'inplayer_protectedcontent' 
-        ));
-    debug_to_console($atts);
+    function payment_script($ovp_video_id, $content = null) {
 
-    if (current_user_can('create_users'))
-        return '<div id="myElement" class="invideous" style="width:640px;height:390px;">' . $content . '</div>';
-    return payment_script($content = $content);
-}
-
-add_shortcode('inplayer_protectedcontent', 'inplayer_protectedcontent');
+        // $is_paid_content = false;
+        // $is_paid_content = is_paid(); 
+        
+        global $wpdb, $ovp_video_id, $is_paid_view;
 
 
-function debug_to_console( $data ) {
+        // $is_paid_view = true;
 
-    if ( is_array( $data ) )
-        $output = "<script>console.log( 'Debug Objects: " . implode( ',', $data) . "' );</script>";
-    else
-        $output = "<script>console.log( 'Debug Objects: " . $data . "' );</script>";
+        $acc_info_table = $wpdb->prefix . "inp_acc_info_table";
+        $acc_info_row = $wpdb->get_results("SELECT * FROM `$acc_info_table` WHERE 1", ARRAY_A);
+        
+        $pub_id = $acc_info_row['0']['publisherid'];
 
-    echo $output;
-}
+        // $content = $content;
+        // $is_paid_content = false;
+        // $is_paid_content = is_paid();
 
-// init process for registering our button
- add_action('init', 'wpse72394_shortcode_button_init');
- function wpse72394_shortcode_button_init() {
+        if ( $is_paid_view == 'paid' ) {
+            // var_dump($is_paid_view);
+            $content = $content;
+            $content .= '<br><br><b>THIS IS PAID vo ifot od payment_script + 1 ili true</b><br><br><br>';
+        }
+        else {
+            // var_dump($is_paid_view);
+            $content = $content;
+            // $content = strip_tags($content, '<br/>');
+            // $content = str_replace('<p>', '', $content);
+            // $content = str_replace('</p>', '', $content);
+            $content .= '<br><br><b>THIS IS NOT PAID vo elsot od payment_script + 0 ili false</b><br><br>';
+        }
+        
+        // $protected_content = $content;
+        // $content = strip_tags($content, '<br/>');
+        // $content = str_replace('<p>', '', $content);
+        // $content = str_replace('</p>', '', $content);
+        // $exerpt_content = $content;
 
-      //Abort early if the user will never see TinyMCE
-      if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') && get_user_option('rich_editing') == 'true')
-           return;
+        $payment_scipt = '<div id="inv_wp_wrap_'.$ovp_video_id.'" class="invideous" style="width:100%;height:315px;">'.$content.'</div><input type="hidden" id="video_p" value="'.$ovp_video_id.'"><br>';
+        $payment_scipt .= '<script type="text/javascript">inplayer.ready(function(){inplayer.ovps.wordpress.createInstance({ publisher_id: \''.$pub_id.'\', ovp_video_id: \''.$ovp_video_id.'\', container: '.'\'#inv_wp_wrap_'.$ovp_video_id.'\' });';
+        $payment_scipt .= ' });</script>';
+        $payment_scipt .= '<b>madafaka na kraj od payment_script + kontent nad </b><br><br><br>';
+        return $payment_scipt;
+    }
 
-      //Add a callback to regiser our tinymce plugin   
-      add_filter("mce_external_plugins", "wpse72394_register_tinymce_plugin"); 
+    // add_action('wp_ajax_nopriv_fire_is_paid','is_paid');
+    // add_action('wp_ajax_fire_is_paid','is_paid');
 
-      // Add a callback to add our button to the TinyMCE toolbar
-      add_filter('mce_buttons', 'wpse72394_add_tinymce_button');
+    // function is_paid() {
 
-}
+    //     $is_paid_content = $_POST['is_paid_view'];
+    //     debug_to_console($is_paid_content);
+    //     $contentp = payment_scipt($is_paid_content,$ovp_video_id,$content);
+    //     debug_to_console($contentp);
+    //     return $contentp;
+
+    // }
+
+    // add_action( 'wp_ajax_nopriv_getContent', 'getContent' );
+    // add_action( 'wp_ajax_getContent', 'getContent' );
+
+    function inplayer_protectedcontent($atts, $content = null) {
+        global $content, $ovp_video_id;
+        // var_dump($atts);
+        extract(shortcode_atts(
+            array(
+                    'ovp_video_id' => '',
+                    'packagename' => '',
+                    'period' => '',
+                    'tarrif_option_id' => '',
+                    'price' => '',
+                    'is_recurrent' => ''
+                ), $atts, 'inplayer_protectedcontent' 
+            ));
+        $ovp_video_id = (string)$atts['ovp_video_id'];
+        // debug_to_console($atts);
+
+        if (current_user_can('create_users'))
+            return '<div id="inv_wp_wrap_'.$ovp_video_id.'" class="invideous" style="width:100%;height:auto;">' . $content . '</div><br>';
+        // if ($get_user)
+        return payment_script($ovp_video_id,$content);
+    }
+
+    add_shortcode('inplayer_protectedcontent', 'inplayer_protectedcontent');
 
 
-//This callback registers our plug-in mce buttons
-function wpse72394_register_tinymce_plugin($plugin_array) {
-    $plugin_array['wpse72394_button'] = plugins_url('inplayer/assets/js/shortcode.js');
-    return $plugin_array;
-}
+    function debug_to_console( $data ) {
 
-//This callback adds our button to the toolbar
-function wpse72394_add_tinymce_button($buttons) {
-            //Add the button ID to the $button array
-    //$buttons[] = "wpse72394_button";
-    array_push( $buttons, "inplayer_protectedcontent", "inplayer_protectedcontent1", "custom_mce_button" );
-    return $buttons;
-}
+        if ( is_array( $data ) )
+            $output = "<script>console.log( 'Debug Objects: " . implode( ',', $data) . "' );</script>";
+        else
+            $output = "<script>console.log( 'Debug Objects: " . $data . "' );</script>";
+
+        echo $output;
+    }
+
+    // init process for registering our button
+     add_action('init', 'wpse72394_shortcode_button_init');
+     function wpse72394_shortcode_button_init() {
+
+          //Abort early if the user will never see TinyMCE
+          if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') && get_user_option('rich_editing') == 'true')
+               return;
+
+          //Add a callback to regiser our tinymce plugin   
+          add_filter("mce_external_plugins", "wpse72394_register_tinymce_plugin"); 
+
+          // Add a callback to add our button to the TinyMCE toolbar
+          add_filter('mce_buttons', 'wpse72394_add_tinymce_button');
+
+    }
+
+
+    //This callback registers our plug-in mce buttons
+    function wpse72394_register_tinymce_plugin($plugin_array) {
+        $plugin_array['wpse72394_button'] = plugins_url('inplayer/assets/js/shortcode.js', __FILE__ );
+        return $plugin_array;
+    }
+
+    //This callback adds our button to the toolbar
+    function wpse72394_add_tinymce_button($buttons) {
+        //Add the button ID to the $button array
+        array_push( $buttons, "inplayer_protectedcontent", "inplayer_protectedcontent1", "custom_mce_button" );
+        return $buttons;
+    }

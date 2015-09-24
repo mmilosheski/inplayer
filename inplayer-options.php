@@ -2,8 +2,8 @@
 /*CONST API_LOGIN = "http://api.invideous.com/plugin/login";
 CONST API_CREATE_PACKAGE = "http://api.inplayer.com/write/create_package";*/
 
-require(ABSPATH . 'wp-blog-header.php');
-require(ABSPATH . 'wp-load.php');
+// require(ABSPATH . 'wp-blog-header.php');
+// require(ABSPATH . 'wp-load.php');
 global $wpdb;
 
 $acc_info_table = $wpdb->prefix . "inp_acc_info_table";
